@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Bilibili 工具箱",
+  "short_name": "BiliToolBox",
+  "version": "0.1.0",
+  "description": "可配置的哔哩哔哩网页增强工具箱。",
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+  "action": {
+    "default_title": "Bilibili 工具箱",
+    "default_popup": "src/popup/popup.html"
+  },
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.bilibili.com/video/*"
+      ],
+      "css": [
+        "src/content/sticky-player.css"
+      ],
+      "js": [
+        "src/shared/settings.js",
+        "src/shared/sticky-layout.js",
+        "src/content/sticky-player.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

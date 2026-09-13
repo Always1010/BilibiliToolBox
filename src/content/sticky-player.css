@@ -1,0 +1,42 @@
+.btt-player-placeholder {
+  display: none;
+  width: 100%;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.btt-player-placeholder--active {
+  display: block;
+}
+
+.btt-sticky-player {
+  box-sizing: border-box !important;
+  position: fixed !important;
+  top: var(--btt-player-top, 0px) !important;
+  left: var(--btt-player-left, 0px) !important;
+  z-index: 2147483000 !important;
+  width: var(--btt-player-width) !important;
+  height: var(--btt-player-height) !important;
+  margin: 0 !important;
+  border-radius: 0 0 10px 10px !important;
+  background: #000 !important;
+  box-shadow: 0 10px 32px rgb(0 0 0 / 28%) !important;
+}
+
+/* B 站会为原生小窗直接写入 fixed 定位和右下角坐标。顶部驻留激活时统一接管。 */
+html[data-btt-sticky-active="true"] .bpx-player-container,
+html[data-btt-sticky-active="true"] #bilibili-player.bpx-state-mini {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btt-sticky-player {
+    transition: box-shadow 160ms ease;
+  }
+}

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bilibili 工具箱</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="brand-mark" aria-hidden="true">B</span>
+        <div>
+          <h1>Bilibili 工具箱</h1>
+          <p>让网页更合你的习惯</p>
+        </div>
+      </header>
+
+      <section class="feature">
+        <div>
+          <strong>播放器顶部驻留</strong>
+          <span id="feature-status">使用 B 站默认行为</span>
+        </div>
+        <label class="switch">
+          <input id="sticky-enabled" type="checkbox">
+          <span aria-hidden="true"></span>
+          <em>切换播放器顶部驻留</em>
+        </label>
+      </section>
+
+      <button id="open-options" type="button">打开完整设置 <span aria-hidden="true">→</span></button>
+    </main>
+
+    <script src="../shared/settings.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
+

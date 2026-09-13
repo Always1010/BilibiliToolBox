@@ -1,0 +1,149 @@
+:root {
+  font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  color: #18191c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 330px;
+  margin: 0;
+  background: #f6f7f9;
+}
+
+main {
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.brand-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(145deg, #fb7299, #fc9bb7);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 15px;
+}
+
+header p {
+  margin-top: 3px;
+  color: #9499a0;
+  font-size: 11px;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 17px;
+  border: 1px solid #e3e5e7;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 4%);
+}
+
+.feature strong,
+.feature div span {
+  display: block;
+}
+
+.feature strong {
+  font-size: 13px;
+}
+
+.feature div span {
+  margin-top: 5px;
+  color: #9499a0;
+  font-size: 11px;
+}
+
+.switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+}
+
+.switch input,
+.switch em {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.switch > span {
+  position: absolute;
+  inset: 0;
+  border-radius: 99px;
+  background: #c9ccd0;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.switch > span::after {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 18%);
+  content: "";
+  transition: transform 160ms ease;
+}
+
+.switch input:checked + span {
+  background: #fb7299;
+}
+
+.switch input:checked + span::after {
+  transform: translateX(18px);
+}
+
+.switch input:focus-visible + span {
+  outline: 3px solid rgb(0 174 236 / 28%);
+  outline-offset: 2px;
+}
+
+button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 4px 4px;
+  border: 0;
+  color: #61666d;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
+button:hover {
+  color: #fb7299;
+}
+

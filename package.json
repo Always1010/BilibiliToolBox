@@ -1,0 +1,14 @@
+{
+  "name": "bilibili-toolbox",
+  "version": "0.1.0",
+  "private": true,
+  "description": "面向哔哩哔哩网页的可配置浏览器增强工具箱",
+  "scripts": {
+    "test": "node --test --test-isolation=none test/*.test.cjs",
+    "validate": "node scripts/validate.mjs",
+    "check": "npm run validate && npm test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

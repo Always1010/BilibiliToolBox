@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bilibili 工具箱设置</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#video" aria-label="Bilibili 工具箱设置首页">
+          <span class="brand-mark" aria-hidden="true">B</span>
+          <span>
+            <strong>Bilibili 工具箱</strong>
+            <small>网页增强设置</small>
+          </span>
+        </a>
+
+        <nav aria-label="设置分类">
+          <a class="nav-item nav-item--active" href="#video">
+            <span aria-hidden="true">▶</span>
+            视频播放
+          </a>
+          <span class="nav-item nav-item--disabled">
+            <span aria-hidden="true">▤</span>
+            评论区
+            <small>即将推出</small>
+          </span>
+          <span class="nav-item nav-item--disabled">
+            <span aria-hidden="true">✦</span>
+            界面优化
+            <small>即将推出</small>
+          </span>
+        </nav>
+
+        <p class="version">版本 0.1.0</p>
+      </aside>
+
+      <main id="video" class="content">
+        <header class="page-header">
+          <p class="eyebrow">视频播放</p>
+          <h1>播放器滚动行为</h1>
+          <p>浏览评论时，让原播放器持续停留在页面顶部。</p>
+        </header>
+
+        <section class="settings-card" aria-labelledby="sticky-title">
+          <div class="setting-row setting-row--primary">
+            <div>
+              <h2 id="sticky-title">播放器顶部驻留</h2>
+              <p>关闭时完全保留 B 站默认的小窗与滚动行为。</p>
+            </div>
+            <label class="switch">
+              <input id="sticky-enabled" type="checkbox">
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="sr-only">启用播放器顶部驻留</span>
+            </label>
+          </div>
+
+          <div id="sticky-details" class="setting-details">
+            <div class="setting-row">
+              <div>
+                <label for="max-height">播放器最大高度</label>
+                <p>限制播放器占用的屏幕高度，为评论区保留空间。</p>
+              </div>
+              <div class="range-control">
+                <output id="max-height-value" for="max-height">55%</output>
+                <input id="max-height" type="range" min="35" max="80" step="5">
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <label for="top-offset">顶部间距</label>
+                <p>播放器与浏览器内容区域顶部之间的距离。</p>
+              </div>
+              <div class="range-control">
+                <output id="top-offset-value" for="top-offset">0 px</output>
+                <input id="top-offset" type="range" min="0" max="32" step="4">
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <footer class="page-footer">
+          <button id="reset-button" class="button button--secondary" type="button">恢复默认设置</button>
+          <span id="save-status" class="save-status" role="status" aria-live="polite"></span>
+        </footer>
+      </main>
+    </div>
+
+    <script src="../shared/settings.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>
