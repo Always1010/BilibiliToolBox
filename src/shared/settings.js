@@ -3,7 +3,10 @@
 
   const STORAGE_KEY = "settings";
   const DEFAULT_SETTINGS = Object.freeze({
-    schemaVersion: 2,
+    schemaVersion: 3,
+    defaultWideMode: Object.freeze({
+      enabled: false
+    }),
     stickyPlayer: Object.freeze({
       enabled: false,
       avoidHeader: true,
@@ -24,6 +27,10 @@
 
   function sanitizeSettings(value) {
     const source = value && typeof value === "object" ? value : {};
+    const defaultWideMode =
+      source.defaultWideMode && typeof source.defaultWideMode === "object"
+        ? source.defaultWideMode
+        : {};
     const stickyPlayer =
       source.stickyPlayer && typeof source.stickyPlayer === "object"
         ? source.stickyPlayer
@@ -31,6 +38,12 @@
 
     return {
       schemaVersion: DEFAULT_SETTINGS.schemaVersion,
+      defaultWideMode: {
+        enabled:
+          typeof defaultWideMode.enabled === "boolean"
+            ? defaultWideMode.enabled
+            : DEFAULT_SETTINGS.defaultWideMode.enabled
+      },
       stickyPlayer: {
         enabled:
           typeof stickyPlayer.enabled === "boolean"

@@ -3,6 +3,7 @@
 
   const api = globalThis.BilibiliToolboxSettings;
   const elements = {
+    defaultWideEnabled: document.querySelector("#default-wide-enabled"),
     enabled: document.querySelector("#sticky-enabled"),
     details: document.querySelector("#sticky-details"),
     maxHeight: document.querySelector("#max-height"),
@@ -20,6 +21,7 @@
 
   void restore();
 
+  elements.defaultWideEnabled.addEventListener("change", handleInput);
   elements.enabled.addEventListener("change", handleInput);
   elements.maxHeight.addEventListener("input", handleInput);
   elements.avoidHeader.addEventListener("change", handleInput);
@@ -41,6 +43,9 @@
   function readForm() {
     settings = api.sanitizeSettings({
       ...settings,
+      defaultWideMode: {
+        enabled: elements.defaultWideEnabled.checked
+      },
       stickyPlayer: {
         enabled: elements.enabled.checked,
         avoidHeader: elements.avoidHeader.checked,
@@ -52,6 +57,7 @@
 
   function render() {
     const sticky = settings.stickyPlayer;
+    elements.defaultWideEnabled.checked = settings.defaultWideMode.enabled;
     elements.enabled.checked = sticky.enabled;
     elements.avoidHeader.checked = sticky.avoidHeader;
     elements.maxHeight.value = String(sticky.maxViewportHeight);

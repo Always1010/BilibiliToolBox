@@ -38,6 +38,7 @@
       ],
       "js": [
         "src/shared/settings.js",
+        "src/content/default-wide-player.js",
         "src/shared/sticky-layout.js",
         "src/content/sticky-player.js"
       ],

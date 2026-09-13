@@ -40,9 +40,23 @@
       <main id="video" class="content">
         <header class="page-header">
           <p class="eyebrow">视频播放</p>
-          <h1>视频模块滚动行为</h1>
-          <p>浏览评论时，让标题、UP 主信息和原播放器持续停留在页面顶部。</p>
+          <h1>视频播放设置</h1>
+          <p>设置视频页面打开时的默认模式，以及浏览评论时的驻留行为。</p>
         </header>
+
+        <section class="settings-card" aria-labelledby="default-wide-title">
+          <div class="setting-row setting-row--primary">
+            <div>
+              <h2 id="default-wide-title">默认宽屏模式</h2>
+              <p>新打开或刷新的视频页面自动使用宽屏；不会改变已经打开页面的播放模式。</p>
+            </div>
+            <label class="switch">
+              <input id="default-wide-enabled" type="checkbox">
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="sr-only">启用默认宽屏模式</span>
+            </label>
+          </div>
+        </section>
 
         <section class="settings-card" aria-labelledby="sticky-title">
           <div class="setting-row setting-row--primary">

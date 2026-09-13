@@ -154,6 +154,10 @@ nav {
   box-shadow: 0 16px 48px rgb(0 0 0 / 6%);
 }
 
+.settings-card + .settings-card {
+  margin-top: 20px;
+}
+
 .setting-row {
   display: flex;
   gap: 32px;
