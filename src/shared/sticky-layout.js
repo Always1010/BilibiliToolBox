@@ -46,4 +46,3 @@
     module.exports = api;
   }
 })(typeof globalThis === "undefined" ? self : globalThis);
-

@@ -15,4 +15,3 @@ async function ensureSettingsExist() {
     [settingsApi.STORAGE_KEY]: normalized
   });
 }
-

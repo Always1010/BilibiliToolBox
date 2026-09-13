@@ -43,4 +43,3 @@ if (errors.length > 0) {
 } else {
   console.log(`扩展结构有效，共检查 ${referencedFiles.length} 个入口文件。`);
 }
-
