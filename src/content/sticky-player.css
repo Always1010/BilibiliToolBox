@@ -1,6 +1,9 @@
 .btt-player-placeholder {
   display: none;
-  width: 100%;
+  width: var(--btt-placeholder-width, 100%);
+  height: var(--btt-placeholder-height, auto);
+  max-width: none;
+  flex: 0 0 auto;
   pointer-events: none;
   visibility: hidden;
 }
@@ -18,12 +21,11 @@
   width: var(--btt-player-width) !important;
   height: var(--btt-player-height) !important;
   margin: 0 !important;
-  border-radius: 0 0 10px 10px !important;
   background: #000 !important;
   box-shadow: 0 10px 32px rgb(0 0 0 / 28%) !important;
 }
 
-/* B 站会为原生小窗直接写入 fixed 定位和右下角坐标。顶部驻留激活时统一接管。 */
+/* 恢复完整播放器容器，覆盖 B 站原生小窗写入的 fixed 定位和右下角坐标。 */
 html[data-btt-sticky-active="true"] .bpx-player-container,
 html[data-btt-sticky-active="true"] #bilibili-player.bpx-state-mini {
   position: relative !important;
