@@ -1,15 +1,5 @@
-.btt-player-placeholder {
-  display: none;
-  width: var(--btt-placeholder-width, 100%);
-  height: var(--btt-placeholder-height, auto);
-  max-width: none;
-  flex: 0 0 auto;
-  pointer-events: none;
-  visibility: hidden;
-}
-
-.btt-player-placeholder--active {
-  display: block;
+.btt-player-wrapper--reserved {
+  min-height: var(--btt-player-space-height) !important;
 }
 
 .btt-sticky-player {

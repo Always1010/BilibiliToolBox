@@ -14,14 +14,12 @@
     ".mini-header"
   ];
   const PLAYER_CLASS = "btt-sticky-player";
-  const PLACEHOLDER_CLASS = "btt-player-placeholder";
-  const ACTIVE_PLACEHOLDER_CLASS = "btt-player-placeholder--active";
+  const RESERVED_WRAPPER_CLASS = "btt-player-wrapper--reserved";
 
   let settings = settingsApi.cloneDefaults();
   let player = null;
   let playerSurface = null;
   let playerWrapper = null;
-  let placeholder = null;
   let sourceGeometry = null;
   let preferredMode = "normal";
   let renderedMode = "normal";
@@ -108,11 +106,6 @@
     preferredMode = detectCurrentMode();
     renderedMode = preferredMode;
 
-    placeholder = document.createElement("div");
-    placeholder.className = PLACEHOLDER_CLASS;
-    placeholder.setAttribute("aria-hidden", "true");
-    player.before(placeholder);
-
     resizeObserver = new ResizeObserver(() => {
       if (!active) {
         rememberSourceGeometry();
@@ -189,7 +182,8 @@
     sourceGeometry = {
       left: rectangle.left,
       width: rectangle.width,
-      height: rectangle.height
+      height: rectangle.height,
+      pageTop: rectangle.top + window.scrollY
     };
     return true;
   }
@@ -219,8 +213,7 @@
     const stickyTop = getStickyTop();
 
     if (active) {
-      const placeholderRectangle = placeholder.getBoundingClientRect();
-      if (placeholderRectangle.top >= stickyTop) {
+      if (window.scrollY + stickyTop <= sourceGeometry.pageTop) {
         deactivate();
         return;
       }
@@ -247,7 +240,7 @@
   }
 
   function activate(playerRectangle, stickyTop) {
-    if (active || !player || !placeholder) {
+    if (active || !player) {
       return;
     }
 
@@ -257,11 +250,23 @@
 
     active = true;
     renderedMode = preferredMode;
-    placeholder.classList.add(ACTIVE_PLACEHOLDER_CLASS);
+    reservePlayerSpace();
     player.classList.add(PLAYER_CLASS);
     document.documentElement.dataset.bttStickyActive = "true";
 
     updateGeometry(stickyTop);
+  }
+
+  function reservePlayerSpace() {
+    if (!playerWrapper || !sourceGeometry) {
+      return;
+    }
+
+    playerWrapper.classList.add(RESERVED_WRAPPER_CLASS);
+    playerWrapper.style.setProperty(
+      "--btt-player-space-height",
+      `${sourceGeometry.height}px`
+    );
   }
 
   function requestNativeMiniExit() {
@@ -302,14 +307,6 @@
       topOffset: stickyTop
     });
 
-    placeholder.style.setProperty(
-      "--btt-placeholder-width",
-      `${geometry.placeholderWidth}px`
-    );
-    placeholder.style.setProperty(
-      "--btt-placeholder-height",
-      `${geometry.placeholderHeight}px`
-    );
     player.style.setProperty("--btt-player-top", `${geometry.top}px`);
     player.style.setProperty("--btt-player-left", `${geometry.left}px`);
     player.style.setProperty("--btt-player-width", `${geometry.width}px`);
@@ -348,9 +345,8 @@
     player?.style.removeProperty("--btt-player-left");
     player?.style.removeProperty("--btt-player-width");
     player?.style.removeProperty("--btt-player-height");
-    placeholder?.classList.remove(ACTIVE_PLACEHOLDER_CLASS);
-    placeholder?.style.removeProperty("--btt-placeholder-width");
-    placeholder?.style.removeProperty("--btt-placeholder-height");
+    playerWrapper?.classList.remove(RESERVED_WRAPPER_CLASS);
+    playerWrapper?.style.removeProperty("--btt-player-space-height");
     delete document.documentElement.dataset.bttStickyActive;
   }
 
@@ -400,8 +396,6 @@
     screenObserver?.disconnect();
     resizeObserver = null;
     screenObserver = null;
-    placeholder?.remove();
-    placeholder = null;
     playerSurface = null;
     playerWrapper = null;
     player = null;
