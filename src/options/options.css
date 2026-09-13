@@ -199,6 +199,11 @@ nav {
   height: 30px;
 }
 
+.switch--small {
+  width: 44px;
+  height: 26px;
+}
+
 .switch input {
   position: absolute;
   width: 1px;
@@ -228,12 +233,21 @@ nav {
   transition: transform 160ms ease;
 }
 
+.switch--small .switch-track::after {
+  width: 18px;
+  height: 18px;
+}
+
 .switch input:checked + .switch-track {
   background: #fb7299;
 }
 
 .switch input:checked + .switch-track::after {
   transform: translateX(22px);
+}
+
+.switch--small input:checked + .switch-track::after {
+  transform: translateX(18px);
 }
 
 .switch input:focus-visible + .switch-track {

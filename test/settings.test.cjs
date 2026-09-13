@@ -6,12 +6,14 @@ test("默认使用 B 站原生滚动行为", () => {
   const settings = settingsApi.cloneDefaults();
 
   assert.equal(settings.stickyPlayer.enabled, false);
+  assert.equal(settings.stickyPlayer.avoidHeader, true);
 });
 
 test("保留合法的用户设置", () => {
   const settings = settingsApi.sanitizeSettings({
     stickyPlayer: {
       enabled: true,
+      avoidHeader: false,
       topOffset: 12,
       maxViewportHeight: 65
     }
@@ -19,6 +21,7 @@ test("保留合法的用户设置", () => {
 
   assert.deepEqual(settings.stickyPlayer, {
     enabled: true,
+    avoidHeader: false,
     topOffset: 12,
     maxViewportHeight: 65
   });
@@ -28,6 +31,7 @@ test("修复越界值并忽略错误类型", () => {
   const settings = settingsApi.sanitizeSettings({
     stickyPlayer: {
       enabled: "yes",
+      avoidHeader: "yes",
       topOffset: 200,
       maxViewportHeight: 10
     }
@@ -35,6 +39,7 @@ test("修复越界值并忽略错误类型", () => {
 
   assert.deepEqual(settings.stickyPlayer, {
     enabled: false,
+    avoidHeader: true,
     topOffset: 32,
     maxViewportHeight: 35
   });

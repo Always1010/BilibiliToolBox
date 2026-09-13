@@ -3,9 +3,10 @@
 
   const STORAGE_KEY = "settings";
   const DEFAULT_SETTINGS = Object.freeze({
-    schemaVersion: 1,
+    schemaVersion: 2,
     stickyPlayer: Object.freeze({
       enabled: false,
+      avoidHeader: true,
       topOffset: 0,
       maxViewportHeight: 55
     })
@@ -35,6 +36,10 @@
           typeof stickyPlayer.enabled === "boolean"
             ? stickyPlayer.enabled
             : DEFAULT_SETTINGS.stickyPlayer.enabled,
+        avoidHeader:
+          typeof stickyPlayer.avoidHeader === "boolean"
+            ? stickyPlayer.avoidHeader
+            : DEFAULT_SETTINGS.stickyPlayer.avoidHeader,
         topOffset: clampInteger(
           stickyPlayer.topOffset,
           0,

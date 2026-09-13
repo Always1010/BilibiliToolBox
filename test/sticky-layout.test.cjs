@@ -95,3 +95,25 @@ test("原生小窗状态下通过播放器是否横跨栏位推断先前模式",
     "normal"
   );
 });
+
+test("导航栏可见时在其下方叠加用户间距", () => {
+  assert.equal(
+    layoutApi.calculateStickyTop({
+      topOffset: 8,
+      avoidHeader: true,
+      headerBottom: 64
+    }),
+    72
+  );
+});
+
+test("关闭导航避让时只使用用户间距", () => {
+  assert.equal(
+    layoutApi.calculateStickyTop({
+      topOffset: 12,
+      avoidHeader: false,
+      headerBottom: 64
+    }),
+    12
+  );
+});

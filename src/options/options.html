@@ -72,12 +72,24 @@
             <div class="setting-row">
               <div>
                 <label for="top-offset">顶部间距</label>
-                <p>播放器与浏览器内容区域顶部之间的距离。</p>
+                <p>避让导航栏后额外保留的顶部距离。</p>
               </div>
               <div class="range-control">
                 <output id="top-offset-value" for="top-offset">0 px</output>
                 <input id="top-offset" type="range" min="0" max="32" step="4">
               </div>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <label for="avoid-header">自动避让 B 站导航栏</label>
+                <p>导航栏可见时将播放器放在它的下方，不改变导航栏本身。</p>
+              </div>
+              <label class="switch switch--small">
+                <input id="avoid-header" type="checkbox">
+                <span class="switch-track" aria-hidden="true"></span>
+                <span class="sr-only">自动避让 B 站导航栏</span>
+              </label>
             </div>
 
           </div>

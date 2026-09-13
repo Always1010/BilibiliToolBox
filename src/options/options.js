@@ -7,6 +7,7 @@
     details: document.querySelector("#sticky-details"),
     maxHeight: document.querySelector("#max-height"),
     maxHeightValue: document.querySelector("#max-height-value"),
+    avoidHeader: document.querySelector("#avoid-header"),
     topOffset: document.querySelector("#top-offset"),
     topOffsetValue: document.querySelector("#top-offset-value"),
     resetButton: document.querySelector("#reset-button"),
@@ -21,6 +22,7 @@
 
   elements.enabled.addEventListener("change", handleInput);
   elements.maxHeight.addEventListener("input", handleInput);
+  elements.avoidHeader.addEventListener("change", handleInput);
   elements.topOffset.addEventListener("input", handleInput);
   elements.resetButton.addEventListener("click", resetSettings);
 
@@ -41,6 +43,7 @@
       ...settings,
       stickyPlayer: {
         enabled: elements.enabled.checked,
+        avoidHeader: elements.avoidHeader.checked,
         maxViewportHeight: elements.maxHeight.value,
         topOffset: elements.topOffset.value
       }
@@ -50,6 +53,7 @@
   function render() {
     const sticky = settings.stickyPlayer;
     elements.enabled.checked = sticky.enabled;
+    elements.avoidHeader.checked = sticky.avoidHeader;
     elements.maxHeight.value = String(sticky.maxViewportHeight);
     elements.topOffset.value = String(sticky.topOffset);
     renderValues();
@@ -59,6 +63,7 @@
     const disabled = !elements.enabled.checked;
     elements.details.setAttribute("aria-disabled", String(disabled));
     elements.maxHeight.disabled = disabled;
+    elements.avoidHeader.disabled = disabled;
     elements.topOffset.disabled = disabled;
     elements.maxHeightValue.value = `${elements.maxHeight.value}%`;
     elements.maxHeightValue.textContent = `${elements.maxHeight.value}%`;

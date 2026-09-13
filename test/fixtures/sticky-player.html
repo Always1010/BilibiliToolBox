@@ -8,7 +8,8 @@
     <style>
       * { box-sizing: border-box; }
       body { min-height: 3600px; margin: 0; color: #18191c; background: #f6f7f9; font-family: sans-serif; }
-      header { height: 180px; padding: 48px; background: #fff; }
+      .bili-header__bar { position: fixed; inset: 0 0 auto; z-index: 1002; height: 64px; padding: 20px 48px; background: #fb7299; color: #fff; }
+      .page-header { height: 180px; padding: 80px 48px 24px; background: #fff; }
       #playerWrap { width: min(720px, calc(100% - 48px)); margin: 0 auto; }
       #bilibili-player { width: 100%; height: 451px; }
       body.test-wide #playerWrap { width: min(480px, calc(100% - 48px)); }
@@ -27,9 +28,10 @@
           sync: {
             get: async () => ({
               settings: {
-                schemaVersion: 1,
+                schemaVersion: 2,
                 stickyPlayer: {
                   enabled: true,
+                  avoidHeader: true,
                   topOffset: 8,
                   maxViewportHeight: 80
                 }
@@ -66,7 +68,8 @@
     </script>
   </head>
   <body>
-    <header>
+    <nav class="bili-header__bar">模拟 B 站顶部导航栏</nav>
+    <header class="page-header">
       <strong>Bilibili 工具箱 · DOM 行为测试</strong>
       <p>向下滚动后，完整播放器模块应固定在顶部。</p>
     </header>

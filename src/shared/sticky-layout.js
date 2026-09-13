@@ -57,9 +57,18 @@
     return safePlayerWidth > safeWrapperWidth + 8 ? "wide" : "normal";
   }
 
+  function calculateStickyTop({ topOffset, avoidHeader, headerBottom }) {
+    const safeOffset = Math.min(32, Math.max(0, Number(topOffset) || 0));
+    const safeHeaderBottom = avoidHeader
+      ? Math.min(160, Math.max(0, Number(headerBottom) || 0))
+      : 0;
+    return safeHeaderBottom + safeOffset;
+  }
+
   const api = Object.freeze({
     PAGE_MODES,
     calculatePlayerGeometry,
+    calculateStickyTop,
     detectPlayerMode
   });
   globalScope.BilibiliToolboxStickyLayout = api;

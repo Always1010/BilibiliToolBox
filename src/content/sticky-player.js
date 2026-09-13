@@ -6,6 +6,12 @@
   const PLAYER_SELECTOR = "#bilibili-player";
   const PLAYER_SURFACE_SELECTOR = ".bpx-player-container";
   const PLAYER_WRAPPER_SELECTOR = "#playerWrap, .player-wrap";
+  const HEADER_SELECTORS = [
+    "#biliMainHeader .bili-header__bar",
+    ".bili-header__bar",
+    ".international-header .mini-header",
+    ".mini-header"
+  ];
   const PLAYER_CLASS = "btt-sticky-player";
   const PLACEHOLDER_CLASS = "btt-player-placeholder";
   const ACTIVE_PLACEHOLDER_CLASS = "btt-player-placeholder--active";
@@ -206,7 +212,7 @@
       return;
     }
 
-    const stickyTop = settings.stickyPlayer.topOffset;
+    const stickyTop = getStickyTop();
 
     if (active) {
       const placeholderRectangle = placeholder.getBoundingClientRect();
@@ -299,7 +305,7 @@
 
       removeStickyPresentation();
       const rectangle = player.getBoundingClientRect();
-      activate(rectangle, settings.stickyPlayer.topOffset);
+      activate(rectangle, getStickyTop());
     });
   }
 
@@ -309,7 +315,7 @@
     }
 
     const placeholderWasAboveViewport =
-      placeholder?.getBoundingClientRect().top < settings.stickyPlayer.topOffset;
+      placeholder?.getBoundingClientRect().top < getStickyTop();
     removeStickyPresentation();
 
     if (
@@ -335,6 +341,44 @@
     placeholder?.style.removeProperty("--btt-placeholder-width");
     placeholder?.style.removeProperty("--btt-placeholder-height");
     delete document.documentElement.dataset.bttStickyActive;
+  }
+
+  function getStickyTop() {
+    return layoutApi.calculateStickyTop({
+      topOffset: settings.stickyPlayer.topOffset,
+      avoidHeader: settings.stickyPlayer.avoidHeader,
+      headerBottom: getVisibleHeaderBottom()
+    });
+  }
+
+  function getVisibleHeaderBottom() {
+    const headers = new Set(
+      HEADER_SELECTORS.flatMap((selector) => [
+        ...document.querySelectorAll(selector)
+      ])
+    );
+
+    return [...headers].reduce((maximumBottom, header) => {
+      if (!(header instanceof HTMLElement) || header.contains(player)) {
+        return maximumBottom;
+      }
+
+      const rectangle = header.getBoundingClientRect();
+      const style = window.getComputedStyle(header);
+      const isTopBar =
+        (style.position === "fixed" || style.position === "sticky") &&
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        Number(style.opacity) > 0 &&
+        rectangle.top <= 32 &&
+        rectangle.bottom > 0 &&
+        rectangle.height <= 160 &&
+        rectangle.width >= window.innerWidth * 0.5;
+
+      return isTopBar
+        ? Math.max(maximumBottom, rectangle.bottom)
+        : maximumBottom;
+    }, 0);
   }
 
   function detachPlayer() {
