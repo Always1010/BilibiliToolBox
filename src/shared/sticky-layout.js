@@ -20,7 +20,11 @@
       80,
       Math.max(35, Number(maxViewportHeight) || 55)
     );
-    const maxHeight = safeViewportHeight * (heightLimit / 100);
+    const safeTop = Math.max(0, Number(topOffset) || 0);
+    const maxHeight = Math.min(
+      safeViewportHeight * (heightLimit / 100),
+      Math.max(0, safeViewportHeight - safeTop)
+    );
     const widthScale = safeAnchorWidth > 0
       ? Math.min(1, safeViewportWidth / safeAnchorWidth)
       : 0;
@@ -38,12 +42,39 @@
     );
 
     return {
-      top: Math.max(0, Number(topOffset) || 0),
+      top: safeTop,
       left,
       width,
       height,
       placeholderWidth: safeAnchorWidth,
       placeholderHeight: safeAnchorHeight
+    };
+  }
+
+  function calculateStickyModulePositions({
+    stickyTop,
+    modulePageTop,
+    playerPageTop,
+    videoInfoPageTop,
+    upInfoPageTop
+  }) {
+    const safeStickyTop = Math.max(0, Number(stickyTop) || 0);
+    const safeModulePageTop = Number(modulePageTop) || 0;
+    const positionFor = (pageTop) => {
+      if (pageTop === null || pageTop === undefined) {
+        return null;
+      }
+
+      const numericPageTop = Number(pageTop);
+      return Number.isFinite(numericPageTop)
+        ? safeStickyTop + Math.max(0, numericPageTop - safeModulePageTop)
+        : null;
+    };
+
+    return {
+      videoInfoTop: positionFor(videoInfoPageTop),
+      upInfoTop: positionFor(upInfoPageTop),
+      playerTop: positionFor(playerPageTop) ?? safeStickyTop
     };
   }
 
@@ -68,6 +99,7 @@
   const api = Object.freeze({
     PAGE_MODES,
     calculatePlayerGeometry,
+    calculateStickyModulePositions,
     calculateStickyTop,
     detectPlayerMode
   });

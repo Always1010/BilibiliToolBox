@@ -58,6 +58,54 @@ test("播放器不会超出视口左右边界", () => {
   assert.equal(geometry.height, 216);
 });
 
+test("标题区占用顶部空间后播放器不会超出视口底部", () => {
+  const geometry = layoutApi.calculatePlayerGeometry({
+    anchorLeft: 40,
+    anchorWidth: 960,
+    anchorHeight: 586,
+    viewportWidth: 1100,
+    viewportHeight: 600,
+    maxViewportHeight: 80,
+    topOffset: 168
+  });
+
+  assert.equal(geometry.top, 168);
+  assert.equal(geometry.height, 432);
+  assert.equal(geometry.top + geometry.height, 600);
+});
+
+test("标题、UP主与播放器保持原生纵向间距", () => {
+  assert.deepEqual(
+    layoutApi.calculateStickyModulePositions({
+      stickyTop: 64,
+      modulePageTop: 64,
+      videoInfoPageTop: 64,
+      upInfoPageTop: 64,
+      playerPageTop: 168
+    }),
+    {
+      videoInfoTop: 64,
+      upInfoTop: 64,
+      playerTop: 168
+    }
+  );
+});
+
+test("信息区暂未挂载时仍可单独驻留播放器", () => {
+  assert.deepEqual(
+    layoutApi.calculateStickyModulePositions({
+      stickyTop: 72,
+      modulePageTop: 168,
+      playerPageTop: 168
+    }),
+    {
+      videoInfoTop: null,
+      upInfoTop: null,
+      playerTop: 72
+    }
+  );
+});
+
 test("优先使用 B 站明确提供的普通与宽屏状态", () => {
   assert.equal(
     layoutApi.detectPlayerMode({

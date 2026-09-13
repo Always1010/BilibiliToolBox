@@ -4,16 +4,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>播放器顶部驻留测试页</title>
-    <link rel="stylesheet" href="../../src/content/sticky-player.css?fixture=2">
+    <link rel="stylesheet" href="../../src/content/sticky-player.css?fixture=3">
     <style>
       * { box-sizing: border-box; }
       body { min-height: 3600px; margin: 0; color: #18191c; background: #f6f7f9; font-family: sans-serif; }
       .bili-header__bar { position: fixed; inset: 0 0 auto; z-index: 1002; height: 64px; padding: 20px 48px; background: #fb7299; color: #fff; }
-      .page-header { height: 180px; padding: 80px 48px 24px; background: #fff; }
-      #playerWrap { width: min(720px, calc(100% - 48px)); margin: 0 auto; }
+      .video-stage { display: grid; grid-template-columns: minmax(0, 720px) 220px; gap: 20px; width: min(960px, calc(100% - 48px)); margin: 64px auto 0; align-items: start; }
+      .video-info-container, .up-info-container { height: 104px; padding: 18px 20px; background: #fff; }
+      .video-title { overflow: hidden; margin: 0 0 12px; font-size: 20px; white-space: nowrap; text-overflow: ellipsis; }
+      .video-info-meta { color: #9499a0; font-size: 14px; }
+      .up-info-container { display: grid; grid-template-columns: 48px 1fr; gap: 12px; padding-inline: 8px; }
+      .up-avatar { display: grid; width: 48px; height: 48px; border-radius: 50%; background: #fb7299; color: #fff; place-items: center; }
+      .up-details strong, .up-details span { display: block; }
+      .up-details span { overflow: hidden; margin: 5px 0 8px; color: #9499a0; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
+      .up-actions { display: flex; gap: 6px; }
+      .up-actions button { border: 1px solid #00aeec; border-radius: 4px; padding: 4px 8px; background: #00aeec; color: #fff; }
+      #playerWrap { width: 100%; margin: 0; }
       #bilibili-player { width: 100%; height: 451px; }
-      body.test-wide #playerWrap { width: min(480px, calc(100% - 48px)); }
-      body.test-wide #bilibili-player:not(.btt-sticky-player) { width: min(960px, calc(100vw - 96px)); height: 586px; }
+      body.test-wide #bilibili-player:not(.btt-sticky-player) { width: min(960px, calc(100vw - 48px)); height: 586px; }
       .bpx-docker { width: 100%; height: 100%; }
       .bpx-player-container { width: 100%; height: 100%; color: #fff; background: #18191c; }
       .bpx-player-primary-area { height: 100%; }
@@ -21,7 +29,7 @@
       .bpx-player-sending-area { display: block; height: 46px; }
       .bpx-player-sending-bar { display: flex; height: 46px; align-items: center; justify-content: space-between; padding: 0 18px; background: #fff; color: #61666d; }
       .bpx-player-mini-warp { display: none; position: absolute; inset: 0; background: #18191c; }
-      .comments { width: min(720px, calc(100% - 48px)); min-height: 2600px; margin: 24px auto; padding: 28px; background: #fff; }
+      .comments { width: min(960px, calc(100% - 48px)); min-height: 2600px; margin: 24px auto; padding: 28px; background: #fff; }
       .comments p { min-height: 120px; border-bottom: 1px solid #eee; }
     </style>
     <script>
@@ -95,30 +103,47 @@
   </head>
   <body>
     <nav class="bili-header__bar">模拟 B 站顶部导航栏</nav>
-    <header class="page-header">
-      <strong>Bilibili 工具箱 · DOM 行为测试</strong>
-      <p>向下滚动后，完整播放器模块应固定在顶部。</p>
-    </header>
-    <div id="playerWrap" class="player-wrap">
-      <div id="bilibili-player">
-        <div class="bpx-docker bpx-docker-major">
-          <div class="bpx-player-container" data-screen="normal">
-            <div class="bpx-player-primary-area">
-              <div class="bpx-player-video-wrap">模拟 B 站视频画面与控制栏</div>
-              <div class="bpx-player-sending-area">
-                <div class="bpx-player-sending-bar">
-                  <span>352 人正在看</span>
-                  <span>弹幕输入框</span>
-                  <button id="mode-toggle" type="button" onclick="toggleTestMode()">切换普通/宽屏</button>
-                  <button type="button">发送</button>
+    <div class="video-stage">
+      <div class="left-container scroll-sticky">
+        <section id="viewbox_report" class="video-info-container">
+          <h1 class="video-title">985 本硕小伙离开家门去读新本科啦，成功到达新宿舍</h1>
+          <div class="video-info-meta">▣ 19.8万　☷ 867　2026-09-12 17:00:00</div>
+        </section>
+        <div id="playerWrap" class="player-wrap">
+          <div id="bilibili-player">
+            <div class="bpx-docker bpx-docker-major">
+              <div class="bpx-player-container" data-screen="normal">
+                <div class="bpx-player-primary-area">
+                  <div class="bpx-player-video-wrap">模拟 B 站视频画面、进度条与控制栏</div>
+                  <div class="bpx-player-sending-area">
+                    <div class="bpx-player-sending-bar">
+                      <span>352 人正在看</span>
+                      <span>弹幕输入框</span>
+                      <button id="mode-toggle" type="button" onclick="toggleTestMode()">切换普通/宽屏</button>
+                      <button type="button">发送</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="bpx-player-mini-warp">
+                  <button class="bpx-player-mini-close" type="button" onclick="restoreNativePageMode()">关闭小窗</button>
                 </div>
               </div>
             </div>
-            <div class="bpx-player-mini-warp">
-              <button class="bpx-player-mini-close" type="button" onclick="restoreNativePageMode()">关闭小窗</button>
-            </div>
           </div>
         </div>
+      </div>
+      <div class="up-panel-container">
+        <section class="up-info-container">
+          <div class="up-avatar">UP</div>
+          <div class="up-details">
+            <strong>亮子李</strong>
+            <span>吃吃睡睡，幸福万岁。</span>
+            <div class="up-actions">
+              <button type="button">充电</button>
+              <button type="button">＋ 关注</button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
     <main class="comments">
@@ -129,8 +154,8 @@
       <p>评论内容四</p>
     </main>
 
-    <script src="../../src/shared/settings.js"></script>
-    <script src="../../src/shared/sticky-layout.js"></script>
-    <script src="../../src/content/sticky-player.js"></script>
+    <script src="../../src/shared/settings.js?fixture=3"></script>
+    <script src="../../src/shared/sticky-layout.js?fixture=3"></script>
+    <script src="../../src/content/sticky-player.js?fixture=3"></script>
   </body>
 </html>

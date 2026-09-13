@@ -7,6 +7,8 @@
   const PLAYER_SURFACE_SELECTOR = ".bpx-player-container";
   const MINI_CLOSE_SELECTOR = ".bpx-player-mini-close";
   const PLAYER_WRAPPER_SELECTOR = "#playerWrap, .player-wrap";
+  const VIDEO_INFO_SELECTOR = "#viewbox_report.video-info-container, .video-info-container";
+  const UP_INFO_SELECTOR = ".up-info-container";
   const HEADER_SELECTORS = [
     "#biliMainHeader .bili-header__bar",
     ".bili-header__bar",
@@ -14,13 +16,20 @@
     ".mini-header"
   ];
   const PLAYER_CLASS = "btt-sticky-player";
+  const VIDEO_INFO_CLASS = "btt-sticky-video-info";
+  const UP_INFO_CLASS = "btt-sticky-up-info";
   const RESERVED_WRAPPER_CLASS = "btt-player-wrapper--reserved";
+  const RESERVED_UP_WRAPPER_CLASS = "btt-up-wrapper--reserved";
 
   let settings = settingsApi.cloneDefaults();
   let player = null;
   let playerSurface = null;
   let playerWrapper = null;
+  let videoInfo = null;
+  let upInfo = null;
+  let upInfoWrapper = null;
   let sourceGeometry = null;
+  let sourceInfoGeometry = null;
   let preferredMode = "normal";
   let renderedMode = "normal";
   let active = false;
@@ -42,7 +51,7 @@
     findPlayer();
 
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
-    window.addEventListener("resize", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", handleViewportResize, { passive: true });
     document.addEventListener("fullscreenchange", scheduleUpdate);
     chrome.storage.onChanged.addListener(handleStorageChange);
 
@@ -83,7 +92,11 @@
         if (!player || !player.isConnected) {
           detachPlayer();
           findPlayer();
+          return;
         }
+
+        syncInfoElements();
+        scheduleUpdate();
       }, 200);
     });
 
@@ -103,6 +116,7 @@
     player = candidate;
     playerSurface = player.querySelector(PLAYER_SURFACE_SELECTOR);
     playerWrapper = player.closest(PLAYER_WRAPPER_SELECTOR) ?? player.parentElement;
+    syncInfoElements();
     preferredMode = detectCurrentMode();
     renderedMode = preferredMode;
 
@@ -113,6 +127,12 @@
       scheduleUpdate();
     });
     resizeObserver.observe(player);
+    if (videoInfo) {
+      resizeObserver.observe(videoInfo);
+    }
+    if (upInfo) {
+      resizeObserver.observe(upInfo);
+    }
 
     if (playerSurface) {
       screenObserver = new MutationObserver(handleScreenModeChange);
@@ -123,7 +143,28 @@
     }
 
     rememberSourceGeometry();
+    rememberSourceInfoGeometry();
     scheduleUpdate();
+  }
+
+  function syncInfoElements() {
+    const previousVideoInfo = videoInfo;
+    const previousUpInfo = upInfo;
+
+    if (!previousVideoInfo?.isConnected) {
+      videoInfo = document.querySelector(VIDEO_INFO_SELECTOR);
+    }
+    if (!previousUpInfo?.isConnected) {
+      upInfo = document.querySelector(UP_INFO_SELECTOR);
+    }
+    upInfoWrapper = upInfo?.parentElement ?? null;
+
+    if (resizeObserver && videoInfo && videoInfo !== previousVideoInfo) {
+      resizeObserver.observe(videoInfo);
+    }
+    if (resizeObserver && upInfo && upInfo !== previousUpInfo) {
+      resizeObserver.observe(upInfo);
+    }
   }
 
   function isUsablePlayer(element) {
@@ -188,6 +229,44 @@
     return true;
   }
 
+  function rememberSourceInfoGeometry() {
+    syncInfoElements();
+    const videoRectangle = getUsableRectangle(videoInfo);
+    const upRectangle = getUsableRectangle(upInfo);
+    const rectangles = [videoRectangle, upRectangle].filter(Boolean);
+
+    if (!rectangles.length) {
+      sourceInfoGeometry = null;
+      return false;
+    }
+
+    const toGeometry = (rectangle) => rectangle
+      ? {
+          left: rectangle.left,
+          width: rectangle.width,
+          height: rectangle.height,
+          pageTop: rectangle.top + window.scrollY
+        }
+      : null;
+    sourceInfoGeometry = {
+      modulePageTop: Math.min(
+        ...rectangles.map((rectangle) => rectangle.top + window.scrollY)
+      ),
+      video: toGeometry(videoRectangle),
+      up: toGeometry(upRectangle)
+    };
+    return true;
+  }
+
+  function getUsableRectangle(element) {
+    if (!(element instanceof HTMLElement)) {
+      return null;
+    }
+
+    const rectangle = element.getBoundingClientRect();
+    return rectangle.width > 0 && rectangle.height > 0 ? rectangle : null;
+  }
+
   function scheduleUpdate() {
     if (animationFrame) {
       return;
@@ -197,6 +276,15 @@
       animationFrame = 0;
       update();
     });
+  }
+
+  function handleViewportResize() {
+    if (active) {
+      scheduleModeRemeasure();
+      return;
+    }
+
+    scheduleUpdate();
   }
 
   function update() {
@@ -213,7 +301,9 @@
     const stickyTop = getStickyTop();
 
     if (active) {
-      if (window.scrollY + stickyTop <= sourceGeometry.pageTop) {
+      const modulePageTop = getModulePageTop();
+      const releaseScrollY = Math.max(0, modulePageTop - stickyTop);
+      if (window.scrollY <= releaseScrollY) {
         deactivate();
         return;
       }
@@ -234,9 +324,15 @@
     }
 
     rememberSourceGeometry(playerRectangle);
-    if (playerRectangle.top <= stickyTop) {
+    rememberSourceInfoGeometry();
+    const moduleTop = getModulePageTop() - window.scrollY;
+    if (window.scrollY > 0 && moduleTop <= stickyTop) {
       activate(playerRectangle, stickyTop);
     }
+  }
+
+  function getModulePageTop() {
+    return sourceInfoGeometry?.modulePageTop ?? sourceGeometry?.pageTop ?? 0;
   }
 
   function activate(playerRectangle, stickyTop) {
@@ -247,10 +343,12 @@
     if (!rememberSourceGeometry(playerRectangle)) {
       return;
     }
+    rememberSourceInfoGeometry();
 
     active = true;
     renderedMode = preferredMode;
     reservePlayerSpace();
+    applyStickyInfoPresentation();
     player.classList.add(PLAYER_CLASS);
     document.documentElement.dataset.bttStickyActive = "true";
 
@@ -267,6 +365,73 @@
       "--btt-player-space-height",
       `${sourceGeometry.height}px`
     );
+    const videoSpace = sourceInfoGeometry?.video
+      ? Math.max(0, sourceGeometry.pageTop - sourceInfoGeometry.video.pageTop)
+      : 0;
+    playerWrapper.style.setProperty(
+      "--btt-video-info-space-height",
+      `${videoSpace}px`
+    );
+
+    if (upInfoWrapper && sourceInfoGeometry?.up) {
+      upInfoWrapper.classList.add(RESERVED_UP_WRAPPER_CLASS);
+      upInfoWrapper.style.setProperty(
+        "--btt-up-info-space-height",
+        `${sourceInfoGeometry.up.height}px`
+      );
+    }
+  }
+
+  function applyStickyInfoPresentation() {
+    if (!sourceInfoGeometry || !sourceGeometry) {
+      return;
+    }
+
+    const positions = getModulePositions(getStickyTop());
+    const background = window.getComputedStyle(document.body).backgroundColor;
+    applyInfoGeometry(
+      videoInfo,
+      VIDEO_INFO_CLASS,
+      sourceInfoGeometry.video,
+      positions.videoInfoTop,
+      background
+    );
+    applyInfoGeometry(
+      upInfo,
+      UP_INFO_CLASS,
+      sourceInfoGeometry.up,
+      positions.upInfoTop,
+      background
+    );
+  }
+
+  function applyInfoGeometry(
+    element,
+    className,
+    geometry,
+    top,
+    background
+  ) {
+    if (!element || !geometry || top === null) {
+      return;
+    }
+
+    element.classList.add(className);
+    element.style.setProperty("--btt-info-top", `${top}px`);
+    element.style.setProperty("--btt-info-left", `${geometry.left}px`);
+    element.style.setProperty("--btt-info-width", `${geometry.width}px`);
+    element.style.setProperty("--btt-info-height", `${geometry.height}px`);
+    element.style.setProperty("--btt-info-background", background);
+  }
+
+  function getModulePositions(stickyTop) {
+    return layoutApi.calculateStickyModulePositions({
+      stickyTop,
+      modulePageTop: getModulePageTop(),
+      playerPageTop: sourceGeometry?.pageTop,
+      videoInfoPageTop: sourceInfoGeometry?.video?.pageTop,
+      upInfoPageTop: sourceInfoGeometry?.up?.pageTop
+    });
   }
 
   function requestNativeMiniExit() {
@@ -297,6 +462,7 @@
       return;
     }
 
+    const positions = getModulePositions(stickyTop);
     const geometry = layoutApi.calculatePlayerGeometry({
       anchorLeft: sourceGeometry.left,
       anchorWidth: sourceGeometry.width,
@@ -304,13 +470,26 @@
       viewportWidth: window.innerWidth,
       viewportHeight: window.innerHeight,
       maxViewportHeight: settings.stickyPlayer.maxViewportHeight,
-      topOffset: stickyTop
+      topOffset: positions.playerTop
     });
 
+    updateInfoTops(positions);
     player.style.setProperty("--btt-player-top", `${geometry.top}px`);
     player.style.setProperty("--btt-player-left", `${geometry.left}px`);
     player.style.setProperty("--btt-player-width", `${geometry.width}px`);
     player.style.setProperty("--btt-player-height", `${geometry.height}px`);
+  }
+
+  function updateInfoTops(positions) {
+    if (videoInfo && positions.videoInfoTop !== null) {
+      videoInfo.style.setProperty(
+        "--btt-info-top",
+        `${positions.videoInfoTop}px`
+      );
+    }
+    if (upInfo && positions.upInfoTop !== null) {
+      upInfo.style.setProperty("--btt-info-top", `${positions.upInfoTop}px`);
+    }
   }
 
   function scheduleModeRemeasure() {
@@ -347,7 +526,21 @@
     player?.style.removeProperty("--btt-player-height");
     playerWrapper?.classList.remove(RESERVED_WRAPPER_CLASS);
     playerWrapper?.style.removeProperty("--btt-player-space-height");
+    playerWrapper?.style.removeProperty("--btt-video-info-space-height");
+    upInfoWrapper?.classList.remove(RESERVED_UP_WRAPPER_CLASS);
+    upInfoWrapper?.style.removeProperty("--btt-up-info-space-height");
+    clearInfoPresentation(videoInfo, VIDEO_INFO_CLASS);
+    clearInfoPresentation(upInfo, UP_INFO_CLASS);
     delete document.documentElement.dataset.bttStickyActive;
+  }
+
+  function clearInfoPresentation(element, className) {
+    element?.classList.remove(className);
+    element?.style.removeProperty("--btt-info-top");
+    element?.style.removeProperty("--btt-info-left");
+    element?.style.removeProperty("--btt-info-width");
+    element?.style.removeProperty("--btt-info-height");
+    element?.style.removeProperty("--btt-info-background");
   }
 
   function getStickyTop() {
@@ -398,8 +591,12 @@
     screenObserver = null;
     playerSurface = null;
     playerWrapper = null;
+    videoInfo = null;
+    upInfo = null;
+    upInfoWrapper = null;
     player = null;
     sourceGeometry = null;
+    sourceInfoGeometry = null;
   }
 
   function isFullscreenMode() {

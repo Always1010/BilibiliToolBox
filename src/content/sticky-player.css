@@ -1,5 +1,23 @@
 .btt-player-wrapper--reserved {
   min-height: var(--btt-player-space-height) !important;
+  margin-top: var(--btt-video-info-space-height, 0) !important;
+}
+
+.btt-up-wrapper--reserved {
+  min-height: var(--btt-up-info-space-height) !important;
+}
+
+.btt-sticky-video-info,
+.btt-sticky-up-info {
+  box-sizing: border-box !important;
+  position: fixed !important;
+  top: var(--btt-info-top) !important;
+  left: var(--btt-info-left) !important;
+  z-index: 1001 !important;
+  width: var(--btt-info-width) !important;
+  height: var(--btt-info-height) !important;
+  margin: 0 !important;
+  background-color: var(--btt-info-background) !important;
 }
 
 .btt-sticky-player {

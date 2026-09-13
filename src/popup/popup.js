@@ -29,7 +29,7 @@
   function render() {
     toggle.checked = settings.stickyPlayer.enabled;
     status.textContent = toggle.checked
-      ? "向下滚动时驻留在顶部"
+      ? "标题、UP 主与播放器驻留"
       : "使用 B 站默认行为";
   }
 })();
