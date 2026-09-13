@@ -5,6 +5,7 @@
   const layoutApi = globalThis.BilibiliToolboxStickyLayout;
   const PLAYER_SELECTOR = "#bilibili-player";
   const PLAYER_SURFACE_SELECTOR = ".bpx-player-container";
+  const MINI_CLOSE_SELECTOR = ".bpx-player-mini-close";
   const PLAYER_WRAPPER_SELECTOR = "#playerWrap, .player-wrap";
   const HEADER_SELECTORS = [
     "#biliMainHeader .bili-header__bar",
@@ -25,7 +26,8 @@
   let preferredMode = "normal";
   let renderedMode = "normal";
   let active = false;
-  let nativeMiniSuppressed = false;
+  let nativeMiniExitPending = false;
+  let nativeMiniExitTimer = 0;
   let animationFrame = 0;
   let scanTimer = 0;
   let modeMeasureFrame = 0;
@@ -67,7 +69,7 @@
     );
 
     if (!settings.stickyPlayer.enabled) {
-      deactivate({ restoreNativeMini: true });
+      deactivate();
     }
   }
 
@@ -158,11 +160,13 @@
 
     const screen = playerSurface.dataset.screen;
 
-    if (screen === "mini" && active) {
-      nativeMiniSuppressed = true;
-      playerSurface.dataset.screen = preferredMode;
+    if (screen === "mini") {
+      requestNativeMiniExit();
       return;
     }
+
+    nativeMiniExitPending = false;
+    window.clearTimeout(nativeMiniExitTimer);
 
     if (!layoutApi.PAGE_MODES.includes(screen)) {
       scheduleUpdate();
@@ -203,7 +207,7 @@
 
   function update() {
     if (!settings.stickyPlayer.enabled || !player || !player.isConnected) {
-      deactivate({ restoreNativeMini: true });
+      deactivate();
       return;
     }
 
@@ -227,6 +231,11 @@
 
     const playerRectangle = player.getBoundingClientRect();
     const screen = playerSurface?.dataset.screen;
+    if (screen === "mini") {
+      requestNativeMiniExit();
+      return;
+    }
+
     if (layoutApi.PAGE_MODES.includes(screen)) {
       preferredMode = screen;
     }
@@ -246,21 +255,36 @@
       return;
     }
 
-    nativeMiniSuppressed = playerSurface?.dataset.screen === "mini";
     active = true;
     renderedMode = preferredMode;
     placeholder.classList.add(ACTIVE_PLACEHOLDER_CLASS);
     player.classList.add(PLAYER_CLASS);
     document.documentElement.dataset.bttStickyActive = "true";
 
-    restorePagePlayerMode();
     updateGeometry(stickyTop);
   }
 
-  function restorePagePlayerMode() {
-    if (playerSurface?.dataset.screen === "mini") {
-      playerSurface.dataset.screen = preferredMode;
+  function requestNativeMiniExit() {
+    if (
+      nativeMiniExitPending ||
+      !settings.stickyPlayer.enabled ||
+      playerSurface?.dataset.screen !== "mini"
+    ) {
+      return;
     }
+
+    const closeButton = player?.querySelector(MINI_CLOSE_SELECTOR);
+    if (!(closeButton instanceof HTMLElement)) {
+      nativeMiniExitTimer = window.setTimeout(scheduleUpdate, 120);
+      return;
+    }
+
+    nativeMiniExitPending = true;
+    closeButton.click();
+    nativeMiniExitTimer = window.setTimeout(() => {
+      nativeMiniExitPending = false;
+      scheduleUpdate();
+    }, 250);
   }
 
   function updateGeometry(stickyTop) {
@@ -309,25 +333,12 @@
     });
   }
 
-  function deactivate({ restoreNativeMini = false } = {}) {
+  function deactivate() {
     if (!active) {
       return;
     }
 
-    const placeholderWasAboveViewport =
-      placeholder?.getBoundingClientRect().top < getStickyTop();
     removeStickyPresentation();
-
-    if (
-      restoreNativeMini &&
-      nativeMiniSuppressed &&
-      placeholderWasAboveViewport &&
-      playerSurface
-    ) {
-      playerSurface.dataset.screen = "mini";
-    }
-
-    nativeMiniSuppressed = false;
   }
 
   function removeStickyPresentation() {
@@ -382,7 +393,9 @@
   }
 
   function detachPlayer() {
-    deactivate({ restoreNativeMini: true });
+    deactivate();
+    window.clearTimeout(nativeMiniExitTimer);
+    nativeMiniExitPending = false;
     resizeObserver?.disconnect();
     screenObserver?.disconnect();
     resizeObserver = null;

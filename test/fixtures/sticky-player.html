@@ -16,9 +16,11 @@
       body.test-wide #bilibili-player:not(.btt-sticky-player) { width: min(960px, calc(100vw - 96px)); height: 586px; }
       .bpx-docker { width: 100%; height: 100%; }
       .bpx-player-container { width: 100%; height: 100%; color: #fff; background: #18191c; }
+      .bpx-player-primary-area { height: 100%; }
       .bpx-player-video-wrap { display: grid; height: calc(100% - 46px); place-items: center; }
+      .bpx-player-sending-area { display: block; height: 46px; }
       .bpx-player-sending-bar { display: flex; height: 46px; align-items: center; justify-content: space-between; padding: 0 18px; background: #fff; color: #61666d; }
-      .bpx-player-container[data-screen="mini"] .bpx-player-sending-bar { display: none; }
+      .bpx-player-mini-warp { display: none; position: absolute; inset: 0; background: #18191c; }
       .comments { width: min(720px, calc(100% - 48px)); min-height: 2600px; margin: 24px auto; padding: 28px; background: #fff; }
       .comments p { min-height: 120px; border-bottom: 1px solid #eee; }
     </style>
@@ -42,19 +44,43 @@
         }
       };
 
+      let nativeMiniClosed = false;
+
+      function restoreNativePageMode() {
+        const container = document.querySelector(".bpx-player-container");
+        const sendingArea = document.querySelector(".bpx-player-sending-area");
+        const miniWarp = document.querySelector(".bpx-player-mini-warp");
+        nativeMiniClosed = true;
+        document.body.dataset.nativeMiniExitCount = String(
+          Number(document.body.dataset.nativeMiniExitCount || 0) + 1
+        );
+        container.dataset.screen = document.body.classList.contains("test-wide")
+          ? "wide"
+          : "normal";
+        container.removeAttribute("style");
+        sendingArea.removeAttribute("style");
+        miniWarp.removeAttribute("style");
+      }
+
       window.addEventListener("scroll", () => {
         const container = document.querySelector(".bpx-player-container");
-        if (container && window.scrollY > 180) {
+        const sendingArea = document.querySelector(".bpx-player-sending-area");
+        const miniWarp = document.querySelector(".bpx-player-mini-warp");
+        if (container && window.scrollY > 180 && !nativeMiniClosed) {
           container.dataset.screen = "mini";
           container.setAttribute(
             "style",
             "position: fixed; right: 84px; bottom: 48px; width: 320px; height: 180px"
           );
+          sendingArea.setAttribute("style", "display: none");
+          miniWarp.setAttribute("style", "display: block");
         } else if (container) {
           container.dataset.screen = document.body.classList.contains("test-wide")
             ? "wide"
             : "normal";
           container.removeAttribute("style");
+          sendingArea.removeAttribute("style");
+          miniWarp.removeAttribute("style");
         }
       });
 
@@ -77,12 +103,19 @@
       <div id="bilibili-player">
         <div class="bpx-docker bpx-docker-major">
           <div class="bpx-player-container" data-screen="normal">
-            <div class="bpx-player-video-wrap">模拟 B 站视频画面与控制栏</div>
-            <div class="bpx-player-sending-bar">
-              <span>352 人正在看</span>
-              <span>弹幕输入框</span>
-              <button id="mode-toggle" type="button" onclick="toggleTestMode()">切换普通/宽屏</button>
-              <button type="button">发送</button>
+            <div class="bpx-player-primary-area">
+              <div class="bpx-player-video-wrap">模拟 B 站视频画面与控制栏</div>
+              <div class="bpx-player-sending-area">
+                <div class="bpx-player-sending-bar">
+                  <span>352 人正在看</span>
+                  <span>弹幕输入框</span>
+                  <button id="mode-toggle" type="button" onclick="toggleTestMode()">切换普通/宽屏</button>
+                  <button type="button">发送</button>
+                </div>
+              </div>
+            </div>
+            <div class="bpx-player-mini-warp">
+              <button class="bpx-player-mini-close" type="button" onclick="restoreNativePageMode()">关闭小窗</button>
             </div>
           </div>
         </div>
