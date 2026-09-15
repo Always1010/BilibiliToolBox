@@ -4,6 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>播放器顶部驻留测试页</title>
+    <script>
+      if (new URLSearchParams(location.search).has("landscapeCase")) {
+        document.documentElement.classList.add("fixture-landscape");
+      }
+    </script>
     <link rel="stylesheet" href="../../src/content/sticky-player.css?fixture=3">
     <style>
       * { box-sizing: border-box; }
@@ -22,6 +27,8 @@
       #playerWrap { width: 100%; margin: 0; }
       #bilibili-player { width: 100%; height: 451px; }
       body.test-wide #bilibili-player:not(.btt-sticky-player) { width: min(960px, calc(100vw - 48px)); height: 586px; }
+      html.fixture-landscape .video-stage { grid-template-columns: 850px 330px; width: 1200px; }
+      html.fixture-landscape body.test-wide #bilibili-player:not(.btt-sticky-player) { width: 1200px; height: 716px; }
       .bpx-docker { width: 100%; height: 100%; }
       .bpx-player-container { width: 100%; height: 100%; color: #fff; background: #18191c; }
       .bpx-player-primary-area { height: 100%; }
@@ -46,7 +53,7 @@
                   enabled: true,
                   avoidHeader: true,
                   topOffset: 8,
-                  maxViewportHeight: 80
+                  maxViewportHeight: new URLSearchParams(location.search).has("landscapeCase") ? 55 : 80
                 }
               }
             })

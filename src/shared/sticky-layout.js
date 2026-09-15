@@ -10,7 +10,9 @@
     viewportWidth,
     viewportHeight,
     maxViewportHeight,
-    topOffset
+    topOffset,
+    minimumWidth = 0,
+    alignToAnchorStart = false
   }) {
     const safeAnchorWidth = Math.max(0, Number(anchorWidth) || 0);
     const safeAnchorHeight = Math.max(0, Number(anchorHeight) || 0);
@@ -21,9 +23,18 @@
       Math.max(35, Number(maxViewportHeight) || 55)
     );
     const safeTop = Math.max(0, Number(topOffset) || 0);
+    const availableHeight = Math.max(0, safeViewportHeight - safeTop);
+    const configuredMaxHeight = safeViewportHeight * (heightLimit / 100);
+    const safeMinimumWidth = Math.min(
+      safeAnchorWidth,
+      Math.max(0, Number(minimumWidth) || 0)
+    );
+    const minimumHeight = safeAnchorWidth > 0
+      ? safeAnchorHeight * (safeMinimumWidth / safeAnchorWidth)
+      : 0;
     const maxHeight = Math.min(
-      safeViewportHeight * (heightLimit / 100),
-      Math.max(0, safeViewportHeight - safeTop)
+      availableHeight,
+      Math.max(configuredMaxHeight, minimumHeight)
     );
     const widthScale = safeAnchorWidth > 0
       ? Math.min(1, safeViewportWidth / safeAnchorWidth)
@@ -34,8 +45,8 @@
     const scale = Math.min(widthScale, heightScale);
     const width = safeAnchorWidth * scale;
     const height = safeAnchorHeight * scale;
-    const preferredLeft =
-      (Number(anchorLeft) || 0) + (safeAnchorWidth - width) / 2;
+    const preferredLeft = (Number(anchorLeft) || 0) +
+      (alignToAnchorStart ? 0 : (safeAnchorWidth - width) / 2);
     const left = Math.min(
       Math.max(0, preferredLeft),
       Math.max(0, safeViewportWidth - width)

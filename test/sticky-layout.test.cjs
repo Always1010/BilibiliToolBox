@@ -74,6 +74,42 @@ test("标题区占用顶部空间后播放器不会超出视口底部", () => {
   assert.equal(geometry.top + geometry.height, 600);
 });
 
+test("横屏宽屏播放器至少保持主内容栏宽度并与其左侧对齐", () => {
+  const geometry = layoutApi.calculatePlayerGeometry({
+    anchorLeft: 154,
+    anchorWidth: 1520,
+    anchorHeight: 907,
+    viewportWidth: 1824,
+    viewportHeight: 972,
+    maxViewportHeight: 55,
+    topOffset: 167,
+    minimumWidth: 1080,
+    alignToAnchorStart: true
+  });
+
+  assert.equal(geometry.left, 154);
+  assert.equal(geometry.width, 1080);
+  assert.equal(geometry.height, 907 * (1080 / 1520));
+});
+
+test("横屏高度不足时仍优先保证播放器完整显示", () => {
+  const geometry = layoutApi.calculatePlayerGeometry({
+    anchorLeft: 80,
+    anchorWidth: 1520,
+    anchorHeight: 907,
+    viewportWidth: 1680,
+    viewportHeight: 600,
+    maxViewportHeight: 55,
+    topOffset: 168,
+    minimumWidth: 1080,
+    alignToAnchorStart: true
+  });
+
+  assert.equal(geometry.left, 80);
+  assert.equal(geometry.height, 432);
+  assert.equal(geometry.top + geometry.height, 600);
+});
+
 test("标题、UP主与播放器保持原生纵向间距", () => {
   assert.deepEqual(
     layoutApi.calculateStickyModulePositions({

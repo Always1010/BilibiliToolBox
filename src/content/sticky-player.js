@@ -463,6 +463,8 @@
     }
 
     const positions = getModulePositions(stickyTop);
+    const useLandscapeWideLayout =
+      preferredMode === "wide" && window.innerWidth > window.innerHeight;
     const geometry = layoutApi.calculatePlayerGeometry({
       anchorLeft: sourceGeometry.left,
       anchorWidth: sourceGeometry.width,
@@ -470,7 +472,11 @@
       viewportWidth: window.innerWidth,
       viewportHeight: window.innerHeight,
       maxViewportHeight: settings.stickyPlayer.maxViewportHeight,
-      topOffset: positions.playerTop
+      topOffset: positions.playerTop,
+      minimumWidth: useLandscapeWideLayout
+        ? sourceInfoGeometry?.video?.width
+        : 0,
+      alignToAnchorStart: useLandscapeWideLayout
     });
 
     updateInfoTops(positions);
